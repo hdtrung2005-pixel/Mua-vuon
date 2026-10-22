@@ -1,0 +1,54 @@
+/* Mùa Vườn — chi tiết thiết kế đặc trưng: mép xé phiếu + dấu mộc */
+
+.ticket-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(43, 33, 24, 0.12);
+}
+
+/* Mép trên như phiếu bị xé rời khỏi cuộn - dùng radial-gradient lặp tạo răng cưa */
+.ticket-card::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background-image: radial-gradient(circle at 6px 6px, transparent 6px, #F1E9D8 6.5px);
+  background-size: 12px 12px;
+  background-repeat: repeat-x;
+}
+
+.stamp-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 2px solid #B23A2E;
+  border-radius: 9999px;
+  color: #B23A2E;
+  font-family: "Special Elite", monospace;
+  font-size: 0.6rem;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-12deg);
+  padding: 0.4rem;
+  opacity: 0.9;
+}
+
+.stamp-badge--leaf {
+  border-color: #3F5C3E;
+  color: #3F5C3E;
+}
+
+/* Focus visibility rõ ràng cho bàn phím, tôn trọng yêu cầu accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid #D89B2E;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

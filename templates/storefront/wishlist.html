@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Sản phẩm yêu thích — Mùa Vườn{% endblock %}
+
+{% block content %}
+<h1 class="font-display text-3xl uppercase mb-6">Sản phẩm yêu thích</h1>
+
+{% if products %}
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for product in products %}
+      {% include "storefront/_product_card.html" with product=product %}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="text-center py-20">
+    <p class="font-stamp text-soil/40 uppercase mb-2">Chưa có sản phẩm yêu thích</p>
+    <a href="{% url 'storefront:product-list' %}" class="text-turmeric hover:underline">Khám phá sản phẩm</a>
+  </div>
+{% endif %}
+{% endblock %}

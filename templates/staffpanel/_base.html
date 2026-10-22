@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6 border-b border-soil/10 pb-4">
+  <h1 class="font-display text-3xl uppercase">{% block panel_title %}Quản lý{% endblock %}</h1>
+  <nav class="flex gap-4 font-stamp text-xs uppercase">
+    <a href="{% url 'staffpanel:dashboard' %}" class="hover:text-turmeric {% if request.resolver_match.url_name == 'dashboard' %}text-turmeric{% endif %}">Tổng quan</a>
+    <a href="{% url 'staffpanel:order-list' %}" class="hover:text-turmeric {% if 'order' in request.resolver_match.url_name %}text-turmeric{% endif %}">Đơn hàng</a>
+    <a href="{% url 'staffpanel:product-list' %}" class="hover:text-turmeric {% if 'product' in request.resolver_match.url_name %}text-turmeric{% endif %}">Sản phẩm</a>
+    <a href="{% url 'staffpanel:category-list' %}" class="hover:text-turmeric {% if 'category' in request.resolver_match.url_name %}text-turmeric{% endif %}">Danh mục</a>
+    <a href="{% url 'staffpanel:inventory-list' %}" class="hover:text-turmeric {% if 'inventory' in request.resolver_match.url_name %}text-turmeric{% endif %}">Tồn kho</a>
+    <a href="{% url 'staffpanel:refund-list' %}" class="hover:text-turmeric {% if 'refund' in request.resolver_match.url_name %}text-turmeric{% endif %}">Hoàn tiền</a>
+    {% if request.user.role == "ADMIN" %}
+      <a href="{% url 'staffpanel:revenue' %}" class="hover:text-turmeric {% if 'revenue' in request.resolver_match.url_name %}text-turmeric{% endif %}">Doanh thu</a>
+    {% endif %}
+    <a href="/admin/" class="hover:text-turmeric">Django Admin →</a>
+  </nav>
+</div>
+{% block panel_content %}{% endblock %}
+{% endblock %}

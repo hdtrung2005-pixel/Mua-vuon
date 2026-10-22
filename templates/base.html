@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Mùa Vườn — Nông sản tươi từ vườn{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@600;800&family=Special+Elite&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#F1E9D8',
+            soil: '#2B2118',
+            turmeric: '#D89B2E',
+            leaf: '#3F5C3E',
+            chili: '#B23A2E',
+          },
+          fontFamily: {
+            display: ['"Big Shoulders"', 'sans-serif'],
+            stamp: ['"Special Elite"', 'monospace'],
+            body: ['"Work Sans"', 'sans-serif'],
+            ticket: ['"IBM Plex Mono"', 'monospace'],
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-paper text-soil font-body min-h-screen flex flex-col">
+
+  <header class="bg-soil text-paper sticky top-0 z-40 border-b-4 border-turmeric">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="{% url 'storefront:home' %}" class="font-display text-3xl tracking-wide uppercase shrink-0">
+        Mùa Vườn
+      </a>
+
+      <form action="{% url 'storefront:product-list' %}" method="get" class="flex-1 max-w-md hidden sm:flex">
+        <input type="text" name="search" placeholder="Tìm rau, củ, quả..."
+               value="{{ request.GET.search }}"
+               class="w-full px-3 py-1.5 rounded-l-sm text-soil font-body text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+        <button type="submit" class="bg-turmeric text-soil px-3 rounded-r-sm font-stamp text-xs uppercase">Tìm</button>
+      </form>
+
+      <nav class="flex items-center gap-4 font-stamp text-xs uppercase tracking-wide shrink-0">
+        <a href="{% url 'storefront:product-list' %}" class="hover:text-turmeric focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">Sản phẩm</a>
+        {% if request.user.is_authenticated %}
+          {% if request.user.is_operational_staff %}
+            <a href="{% url 'staffpanel:dashboard' %}" class="text-turmeric hover:text-paper focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">Quản lý</a>
+          {% endif %}
+          <a href="{% url 'storefront:cart' %}" class="relative hover:text-turmeric focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">
+            Giỏ hàng{% if cart_item_count %}<span class="ml-1 bg-turmeric text-soil rounded-full px-1.5 py-0.5 text-[0.65rem]">{{ cart_item_count }}</span>{% endif %}
+          </a>
+          <a href="{% url 'storefront:order-list' %}" class="hover:text-turmeric focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">Đơn hàng</a>
+          <a href="{% url 'storefront:wishlist' %}" class="hover:text-turmeric focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">Yêu thích</a>
+          <a href="{% url 'storefront:address-list' %}" class="hover:text-turmeric focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">Địa chỉ</a>
+          <form action="{% url 'accounts:logout' %}" method="post" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="hover:text-chili focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">Đăng xuất</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="hover:text-turmeric focus:outline-none focus-visible:ring-2 focus-visible:ring-turmeric rounded-sm">Đăng nhập</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="max-w-6xl mx-auto w-full px-4 pt-4 space-y-2">
+      {% for message in messages %}
+        <div class="font-body text-sm px-4 py-2 rounded-sm border-l-4 {% if message.tags == 'error' %}bg-chili/10 border-chili text-chili{% else %}bg-leaf/10 border-leaf text-leaf{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="bg-soil text-paper/70 font-body text-sm mt-12">
+    <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col sm:flex-row justify-between gap-4">
+      <p class="font-stamp text-paper">Mùa Vườn — nông sản có nguồn gốc, giao tận nhà.</p>
+      <p>&copy; 2026 Mùa Vườn. Dự án học tập, không dùng cho mục đích thương mại thật.</p>
+    </div>
+  </footer>
+</body>
+</html>

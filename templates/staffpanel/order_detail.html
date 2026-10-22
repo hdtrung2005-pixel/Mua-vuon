@@ -1,0 +1,79 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}{{ order.order_code }} — Quản lý{% endblock %}
+{% block panel_title %}{{ order.order_code }}{% endblock %}
+
+{% block panel_content %}
+<div class="grid md:grid-cols-3 gap-8">
+  <div class="md:col-span-2 space-y-3">
+    <p class="font-body text-sm text-soil/60 mb-2">Khách hàng: <strong>{{ order.customer.email }}</strong> ({{ order.customer.full_name }})</p>
+
+    {% for item in order.items.all %}
+      <div class="ticket-card rounded-sm p-4 flex justify-between">
+        <div>
+          <p class="font-body font-semibold text-sm">{{ item.product_name_snapshot }}</p>
+          <p class="font-ticket text-xs text-soil/50">{{ item.quantity }} × {{ item.price_at_purchase|floatformat:0 }}đ</p>
+        </div>
+        <span class="font-ticket text-sm text-chili">{{ item.subtotal|floatformat:0 }}đ</span>
+      </div>
+    {% endfor %}
+
+    <div class="ticket-card rounded-sm p-4 flex justify-between font-body font-semibold">
+      <span>Tổng cộng</span><span class="font-ticket text-chili">{{ order.final_amount|floatformat:0 }}đ</span>
+    </div>
+  </div>
+
+  <aside class="space-y-4">
+    <div class="ticket-card rounded-sm p-4">
+      <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Địa chỉ giao hàng</h2>
+      <p class="font-body text-sm">
+        <strong>{{ order.shipping_address.full_name }}</strong> — {{ order.shipping_address.phone }}<br>
+        <span class="text-soil/60">{{ order.shipping_address.detail }}, {{ order.shipping_address.ward }}, {{ order.shipping_address.district }}, {{ order.shipping_address.province }}</span>
+      </p>
+    </div>
+
+    <div class="ticket-card rounded-sm p-4">
+      <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Trạng thái đơn</h2>
+      <p class="font-body text-sm mb-3">{{ order.get_status_display }}</p>
+      {% if order.status == "PENDING" %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="confirm">
+          <button type="submit" class="w-full bg-turmeric text-soil font-stamp uppercase text-xs py-2 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+            Xác nhận đơn hàng
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="ticket-card rounded-sm p-4">
+      <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Thanh toán</h2>
+      <p class="font-body text-sm">{{ order.payment.get_method_display }} — {{ order.payment.get_status_display }}</p>
+    </div>
+
+    {% if order.shipping %}
+      <div class="ticket-card rounded-sm p-4">
+        <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Vận chuyển</h2>
+        <p class="font-body text-sm mb-1">{{ order.shipping.get_status_display }}</p>
+        <p class="font-ticket text-xs text-soil/40 mb-3">{{ order.shipping.tracking_code }}</p>
+
+        {% if next_shipping_statuses %}
+          <form method="post" class="space-y-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_shipping">
+            <select name="status" class="w-full border border-soil/20 rounded-sm px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+              {% for s in next_shipping_statuses %}
+                <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="w-full bg-soil text-paper font-stamp uppercase text-xs py-2 rounded-sm hover:bg-turmeric hover:text-soil transition-colors">
+              Cập nhật vận chuyển
+            </button>
+          </form>
+        {% else %}
+          <p class="font-body text-xs text-soil/40">Đã ở trạng thái cuối, không thể cập nhật thêm.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

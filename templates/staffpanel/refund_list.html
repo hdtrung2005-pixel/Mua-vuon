@@ -1,0 +1,72 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}Hoàn tiền — Quản lý{% endblock %}
+{% block panel_title %}Yêu cầu hoàn tiền{% endblock %}
+
+{% block panel_content %}
+<div class="flex flex-wrap gap-2 mb-6">
+  <a href="?" class="text-xs font-body px-3 py-1 rounded-full border {% if not status_filter %}bg-soil text-paper border-soil{% else %}border-soil/20 hover:border-turmeric{% endif %}">Tất cả</a>
+  {% for value, label in statuses %}
+    <a href="?status={{ value }}" class="text-xs font-body px-3 py-1 rounded-full border {% if status_filter == value %}bg-soil text-paper border-soil{% else %}border-soil/20 hover:border-turmeric{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="space-y-3">
+  {% for refund in page_obj %}
+    <div class="ticket-card rounded-sm p-4">
+      <div class="flex items-start justify-between flex-wrap gap-3">
+        <div class="font-body text-sm">
+          <p class="font-ticket text-soil/70">{{ refund.order.order_code }} — {{ refund.order.customer.email }}</p>
+          <p class="mt-1"><strong>Lý do:</strong> {{ refund.reason }}</p>
+          <p class="font-ticket text-chili mt-1">{{ refund.amount|floatformat:0 }}đ</p>
+          {% if refund.staff_note %}<p class="text-soil/50 text-xs mt-1">Ghi chú xử lý: {{ refund.staff_note }}</p>{% endif %}
+        </div>
+        <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full shrink-0
+          {% if refund.status == 'COMPLETED' %}bg-leaf/10 text-leaf
+          {% elif refund.status == 'REJECTED' %}bg-chili/10 text-chili
+          {% else %}bg-turmeric/10 text-turmeric{% endif %}">
+          {{ refund.get_status_display }}
+        </span>
+      </div>
+
+      {% if refund.status == "REQUESTED" %}
+        <div class="grid sm:grid-cols-2 gap-3 mt-4 pt-4 border-t border-soil/10">
+          <form method="post" class="space-y-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="approve">
+            <input type="hidden" name="refund_id" value="{{ refund.id }}">
+            <input type="text" name="note" placeholder="Ghi chú duyệt (tùy chọn)" class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm">
+            <button type="submit" class="w-full bg-leaf text-paper font-stamp uppercase text-xs py-2 rounded-sm hover:opacity-90">Duyệt yêu cầu</button>
+          </form>
+          <form method="post" class="space-y-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reject">
+            <input type="hidden" name="refund_id" value="{{ refund.id }}">
+            <input type="text" name="note" placeholder="Lý do từ chối" required class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm">
+            <button type="submit" class="w-full border border-chili text-chili font-stamp uppercase text-xs py-2 rounded-sm hover:bg-chili hover:text-paper">Từ chối</button>
+          </form>
+        </div>
+      {% elif refund.status == "APPROVED" %}
+        <form method="post" class="mt-4 pt-4 border-t border-soil/10 flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="complete">
+          <input type="hidden" name="refund_id" value="{{ refund.id }}">
+          <input type="text" name="note" placeholder="Ghi chú (VD: đã chuyển khoản hoàn tiền)" class="flex-1 border border-soil/20 rounded-sm px-3 py-2 text-sm">
+          <button type="submit" class="bg-turmeric text-soil font-stamp uppercase text-xs px-4 py-2 rounded-sm hover:bg-soil hover:text-paper shrink-0">
+            Đánh dấu hoàn tất
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  {% empty %}
+    <p class="font-body text-sm text-soil/40 py-10 text-center">Không có yêu cầu hoàn tiền nào.</p>
+  {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+  <nav class="flex justify-center gap-2 font-stamp text-xs mt-6">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">← Trước</a>{% endif %}
+    <span class="px-3 py-1.5 text-soil/50">Trang {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">Sau →</a>{% endif %}
+  </nav>
+{% endif %}
+{% endblock %}

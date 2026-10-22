@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Địa chỉ của tôi — Mùa Vườn{% endblock %}
+
+{% block content %}
+<h1 class="font-display text-3xl uppercase mb-6">Địa chỉ của tôi</h1>
+
+{% if addresses %}
+  <div class="space-y-3 mb-8">
+    {% for addr in addresses %}
+      <div class="ticket-card rounded-sm p-4">
+        <div class="flex items-start justify-between gap-4">
+          <div class="font-body text-sm">
+            <p class="font-semibold">
+              {{ addr.full_name }} — {{ addr.phone }}
+              {% if addr.is_default %}<span class="font-stamp text-[0.6rem] uppercase text-leaf ml-2 px-2 py-0.5 border border-leaf rounded-full">Mặc định</span>{% endif %}
+            </p>
+            <p class="text-soil/60">{{ addr.detail }}, {{ addr.ward }}, {{ addr.district }}, {{ addr.province }}</p>
+            {% if addr.note %}<p class="text-soil/40 text-xs">Ghi chú: {{ addr.note }}</p>{% endif %}
+          </div>
+          <div class="flex gap-2 shrink-0 font-stamp text-[0.65rem] uppercase">
+            <button type="button" onclick="document.getElementById('edit-{{ addr.id }}').classList.toggle('hidden')"
+                    class="px-3 py-1 border border-soil/20 rounded-sm hover:border-turmeric hover:text-turmeric">
+              Sửa
+            </button>
+            {% if not addr.is_default %}
+              <form method="post" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="set_default">
+                <input type="hidden" name="address_id" value="{{ addr.id }}">
+                <button type="submit" class="px-3 py-1 border border-soil/20 rounded-sm hover:border-leaf hover:text-leaf">Đặt mặc định</button>
+              </form>
+            {% endif %}
+            <form method="post" class="inline" onsubmit="return confirm('Xóa địa chỉ này?');">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="address_id" value="{{ addr.id }}">
+              <button type="submit" class="px-3 py-1 border border-chili text-chili rounded-sm hover:bg-chili hover:text-paper">Xóa</button>
+            </form>
+          </div>
+        </div>
+
+        <form id="edit-{{ addr.id }}" method="post" class="hidden grid sm:grid-cols-2 gap-3 mt-4 pt-4 border-t border-soil/10">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="update">
+          <input type="hidden" name="address_id" value="{{ addr.id }}">
+          <input type="text" name="full_name" value="{{ addr.full_name }}" placeholder="Họ tên người nhận" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+          <input type="text" name="phone" value="{{ addr.phone }}" placeholder="Số điện thoại" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+          <input type="text" name="province" value="{{ addr.province }}" placeholder="Tỉnh/thành" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+          <input type="text" name="district" value="{{ addr.district }}" placeholder="Quận/huyện" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+          <input type="text" name="ward" value="{{ addr.ward }}" placeholder="Phường/xã" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+          <input type="text" name="detail" value="{{ addr.detail }}" placeholder="Địa chỉ chi tiết" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+          <input type="text" name="note" value="{{ addr.note }}" placeholder="Ghi chú" class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+          <button type="submit" class="sm:col-span-2 bg-turmeric text-soil font-stamp uppercase text-xs py-2 rounded-sm hover:bg-soil hover:text-paper">
+            Lưu thay đổi
+          </button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="font-body text-sm text-soil/60 mb-8">Bạn chưa có địa chỉ nào.</p>
+{% endif %}
+
+<details class="ticket-card rounded-sm p-4">
+  <summary class="font-stamp text-xs uppercase cursor-pointer text-turmeric">+ Thêm địa chỉ mới</summary>
+  <form method="post" class="grid sm:grid-cols-2 gap-3 mt-4">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create">
+    <input type="text" name="full_name" placeholder="Họ tên người nhận" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+    <input type="text" name="phone" placeholder="Số điện thoại" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+    <input type="text" name="province" placeholder="Tỉnh/thành" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+    <input type="text" name="district" placeholder="Quận/huyện" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+    <input type="text" name="ward" placeholder="Phường/xã" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+    <input type="text" name="detail" placeholder="Địa chỉ chi tiết" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+    <input type="text" name="note" placeholder="Ghi chú (tùy chọn)" class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+    <button type="submit" class="sm:col-span-2 bg-soil text-paper font-stamp uppercase text-xs py-2 rounded-sm hover:bg-turmeric hover:text-soil">
+      Lưu địa chỉ
+    </button>
+  </form>
+</details>
+{% endblock %}

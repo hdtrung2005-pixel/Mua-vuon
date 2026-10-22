@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Đơn hàng của tôi — Mùa Vườn{% endblock %}
+
+{% block content %}
+<h1 class="font-display text-3xl uppercase mb-6">Đơn hàng của tôi</h1>
+
+{% if orders %}
+  <div class="space-y-3">
+    {% for order in orders %}
+      <a href="{% url 'storefront:order-detail' order.order_code %}" class="ticket-card rounded-sm p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
+        <div>
+          <p class="font-ticket text-sm text-soil/50">{{ order.order_code }}</p>
+          <p class="font-body text-sm text-soil/60">{{ order.created_at|date:"d/m/Y H:i" }} · {{ order.items.count }} sản phẩm</p>
+        </div>
+        <div class="text-right">
+          <p class="font-ticket text-chili">{{ order.final_amount|floatformat:0 }}đ</p>
+          <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full
+            {% if order.status == 'DELIVERED' %}bg-leaf/10 text-leaf
+            {% elif order.status == 'CANCELLED' %}bg-chili/10 text-chili
+            {% else %}bg-turmeric/10 text-turmeric{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="text-center py-20">
+    <p class="font-stamp text-soil/40 uppercase mb-2">Chưa có đơn hàng nào</p>
+    <a href="{% url 'storefront:product-list' %}" class="text-turmeric hover:underline">Bắt đầu mua sắm</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}{% if product %}Sửa sản phẩm{% else %}Thêm sản phẩm{% endif %} — Quản lý{% endblock %}
+{% block panel_title %}{% if product %}Sửa: {{ product.name }}{% else %}Thêm sản phẩm mới{% endif %}{% endblock %}
+
+{% block panel_content %}
+<div class="grid md:grid-cols-3 gap-8">
+  <form method="post" enctype="multipart/form-data" class="md:col-span-2 ticket-card rounded-sm p-6 space-y-4">
+    {% csrf_token %}
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Tên sản phẩm</label>
+        <input type="text" name="name" value="{{ product.name|default:'' }}" required
+               class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+      </div>
+      <div>
+        <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">SKU</label>
+        <input type="text" name="sku" value="{{ product.sku|default:'' }}" required
+               class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm font-ticket focus:outline-none focus:ring-2 focus:ring-turmeric">
+      </div>
+    </div>
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Danh mục</label>
+      <select name="category_id" required class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Mô tả</label>
+      <textarea name="description" rows="3" class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">{{ product.description|default:"" }}</textarea>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-4">
+      <div>
+        <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Giá bán</label>
+        <input type="number" name="price" value="{{ product.price|default:'' }}" step="1000" min="0" required
+               class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm font-ticket focus:outline-none focus:ring-2 focus:ring-turmeric">
+      </div>
+      <div>
+        <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Giá khuyến mãi</label>
+        <input type="number" name="discount_price" value="{{ product.discount_price|default:'' }}" step="1000" min="0"
+               class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm font-ticket focus:outline-none focus:ring-2 focus:ring-turmeric">
+      </div>
+      <div>
+        <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Đơn vị tính</label>
+        <input type="text" name="unit" value="{{ product.unit|default:'' }}" placeholder="kg, bó, thùng..." required
+               class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Xuất xứ</label>
+        <input type="text" name="origin" value="{{ product.origin|default:'' }}" placeholder="Đà Lạt, Lâm Đồng..."
+               class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+      </div>
+      <div>
+        <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Trạng thái</label>
+        <select name="status" class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+          {% for value, label in statuses %}
+            <option value="{{ value }}" {% if product.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Thêm ảnh</label>
+      <input type="file" name="image" accept="image/*" class="text-sm">
+    </div>
+
+    <button type="submit" class="bg-turmeric text-soil font-stamp uppercase text-sm px-6 py-2.5 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+      {% if product %}Lưu thay đổi{% else %}Tạo sản phẩm{% endif %}
+    </button>
+  </form>
+
+  <aside>
+    {% if product %}
+      <h2 class="font-stamp text-xs uppercase text-soil/50 mb-3">Ảnh hiện có</h2>
+      <div class="grid grid-cols-2 gap-3">
+        {% for img in product.images.all %}
+          <div class="ticket-card rounded-sm overflow-hidden">
+            <img src="{{ img.image.url }}" alt="" class="w-full aspect-square object-cover">
+            <form method="post" action="{% url 'staffpanel:product-image-delete' product.id img.id %}" class="p-2">
+              {% csrf_token %}
+              <button type="submit" class="w-full font-stamp text-[0.6rem] uppercase text-chili hover:underline">Xóa ảnh</button>
+            </form>
+          </div>
+        {% empty %}
+          <p class="font-body text-xs text-soil/40 col-span-2">Chưa có ảnh nào.</p>
+        {% endfor %}
+      </div>
+
+      <div class="ticket-card rounded-sm p-4 mt-4">
+        <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Tồn kho</h2>
+        <p class="font-ticket text-2xl {% if product.inventory.is_out_of_stock %}text-chili{% else %}text-leaf{% endif %}">
+          {{ product.inventory.quantity }} {{ product.unit }}
+        </p>
+        <a href="{% url 'staffpanel:inventory-transactions' product.inventory.id %}" class="font-stamp text-xs text-turmeric hover:underline">Xem lịch sử kho →</a>
+      </div>
+    {% else %}
+      <p class="font-body text-sm text-soil/40">Lưu sản phẩm trước để thêm ảnh.</p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

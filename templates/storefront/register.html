@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng ký — Mùa Vườn{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+  <p class="font-stamp text-xs uppercase tracking-widest text-chili mb-2 text-center">Tạo phiếu thành viên</p>
+  <h1 class="font-display text-3xl uppercase mb-6 text-center">Đăng ký</h1>
+
+  <form method="post" class="ticket-card rounded-sm p-6 space-y-4">
+    {% csrf_token %}
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Email</label>
+      <input type="email" name="email" value="{{ form_data.email }}" required
+             class="w-full border border-soil/20 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+      {% if errors.email %}<p class="text-chili text-xs mt-1">{{ errors.email }}</p>{% endif %}
+    </div>
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Họ tên</label>
+      <input type="text" name="full_name" value="{{ form_data.full_name }}"
+             class="w-full border border-soil/20 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+    </div>
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Số điện thoại</label>
+      <input type="text" name="phone" value="{{ form_data.phone }}"
+             class="w-full border border-soil/20 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+    </div>
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Mật khẩu</label>
+      <input type="password" name="password" required
+             class="w-full border border-soil/20 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+      {% if errors.password %}<p class="text-chili text-xs mt-1">{{ errors.password }}</p>{% endif %}
+    </div>
+
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Xác nhận mật khẩu</label>
+      <input type="password" name="password_confirm" required
+             class="w-full border border-soil/20 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+      {% if errors.password_confirm %}<p class="text-chili text-xs mt-1">{{ errors.password_confirm }}</p>{% endif %}
+    </div>
+
+    <button type="submit"
+            class="w-full bg-turmeric text-soil font-stamp uppercase text-sm py-2.5 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+      Tạo tài khoản
+    </button>
+  </form>
+
+  <p class="text-center text-sm text-soil/60 mt-4">
+    Đã có tài khoản? <a href="{% url 'accounts:login' %}" class="text-turmeric hover:underline">Đăng nhập</a>
+  </p>
+</div>
+{% endblock %}

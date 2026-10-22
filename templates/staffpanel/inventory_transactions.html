@@ -1,0 +1,36 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}Lịch sử kho — {{ inventory.product.name }}{% endblock %}
+{% block panel_title %}Lịch sử kho: {{ inventory.product.name }}{% endblock %}
+
+{% block panel_content %}
+<div class="ticket-card rounded-sm p-4 mb-6 flex items-center justify-between">
+  <span class="font-body text-sm">Tồn kho hiện tại</span>
+  <span class="font-ticket text-2xl {% if inventory.is_out_of_stock %}text-chili{% elif inventory.is_low_stock %}text-turmeric{% else %}text-leaf{% endif %}">
+    {{ inventory.quantity }} {{ inventory.product.unit }}
+  </span>
+</div>
+
+<div class="space-y-2">
+  {% for tx in transactions %}
+    <div class="ticket-card rounded-sm p-3 flex items-center justify-between text-sm">
+      <div>
+        <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full
+          {% if tx.transaction_type == 'IN' %}bg-leaf/10 text-leaf
+          {% elif tx.transaction_type == 'OUT' %}bg-chili/10 text-chili
+          {% else %}bg-turmeric/10 text-turmeric{% endif %}">
+          {{ tx.get_transaction_type_display }}
+        </span>
+        {% if tx.note %}<span class="font-body text-soil/60 ml-2">{{ tx.note }}</span>{% endif %}
+      </div>
+      <div class="text-right">
+        <span class="font-ticket {% if tx.transaction_type == 'OUT' %}text-chili{% else %}text-leaf{% endif %}">
+          {% if tx.transaction_type == 'OUT' %}-{% elif tx.quantity > 0 %}+{% endif %}{{ tx.quantity }}
+        </span>
+        <p class="font-body text-xs text-soil/40">{{ tx.created_at|date:"d/m/Y H:i" }}{% if tx.created_by %} · {{ tx.created_by.email }}{% endif %}</p>
+      </div>
+    </div>
+  {% empty %}
+    <p class="font-body text-sm text-soil/40 py-10 text-center">Chưa có giao dịch nào.</p>
+  {% endfor %}
+</div>
+{% endblock %}

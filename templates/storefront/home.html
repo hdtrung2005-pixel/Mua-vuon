@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="mb-14">
+  <p class="font-stamp text-xs uppercase tracking-widest text-chili mb-2">Phiên chợ hôm nay</p>
+  <h1 class="font-display text-5xl sm:text-6xl uppercase leading-none mb-4">
+    Nông sản<br><span class="text-turmeric">tươi từ vườn</span>
+  </h1>
+  <p class="max-w-xl text-soil/80">
+    Mỗi phiếu hàng đều có tem xuất xứ rõ ràng — hái sáng, giao chiều.
+    Không qua trung gian, không đội giá.
+  </p>
+</section>
+
+{% if categories %}
+<section class="mb-14">
+  <h2 class="font-stamp text-xs uppercase tracking-widest text-soil/60 mb-3">Danh mục</h2>
+  <div class="flex flex-wrap gap-2">
+    {% for cat in categories %}
+      <a href="{% url 'storefront:product-list' %}?category={{ cat.slug }}"
+         class="font-body text-sm bg-white border border-soil/15 px-4 py-1.5 rounded-full hover:border-turmeric hover:text-turmeric transition-colors">
+        {{ cat.name }}
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if best_sellers %}
+<section class="mb-14">
+  <div class="flex items-baseline justify-between mb-4">
+    <h2 class="font-display text-2xl uppercase">Bán chạy nhất</h2>
+    <span class="font-stamp text-xs text-soil/50">Theo đơn đã giao</span>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for product in best_sellers %}
+      {% include "storefront/_product_card.html" with product=product badge="Bán chạy" badge_style="chili" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if new_arrivals %}
+<section>
+  <h2 class="font-display text-2xl uppercase mb-4">Mới về vườn</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for product in new_arrivals %}
+      {% include "storefront/_product_card.html" with product=product badge="Mới" badge_style="leaf" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

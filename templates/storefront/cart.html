@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Giỏ hàng — Mùa Vườn{% endblock %}
+
+{% block content %}
+<h1 class="font-display text-3xl uppercase mb-6">Giỏ hàng</h1>
+
+{% if cart.items.all %}
+  <div class="space-y-3 mb-8">
+    {% for item in cart.items.all %}
+      <div class="ticket-card rounded-sm p-4 flex items-center gap-4">
+        <form method="post" class="flex items-center">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="toggle">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <input type="hidden" name="selected" value="{% if item.selected %}0{% else %}1{% endif %}">
+          <button type="submit" aria-label="Chọn sản phẩm"
+                  class="w-5 h-5 rounded-sm border-2 {% if item.selected %}bg-leaf border-leaf{% else %}border-soil/30{% endif %} flex items-center justify-center text-paper text-xs">
+            {% if item.selected %}✓{% endif %}
+          </button>
+        </form>
+
+        <a href="{% url 'storefront:product-detail' item.product.slug %}" class="flex-1 min-w-0">
+          <p class="font-body font-semibold text-sm truncate">{{ item.product.name }}</p>
+          <p class="font-ticket text-xs text-soil/50">{{ item.unit_price|floatformat:0 }}đ / {{ item.product.unit }} · còn {{ item.available_stock }}</p>
+        </a>
+
+        <form method="post" class="flex items-center gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="update">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.available_stock }}"
+                 onchange="this.form.submit()"
+                 class="w-16 border border-soil/20 rounded-sm px-2 py-1 font-ticket text-sm text-center focus:outline-none focus:ring-2 focus:ring-turmeric">
+        </form>
+
+        <span class="font-ticket text-sm text-chili w-24 text-right">{{ item.subtotal|floatformat:0 }}đ</span>
+
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="remove">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <button type="submit" class="text-soil/40 hover:text-chili text-sm" aria-label="Xóa">✕</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="ticket-card rounded-sm p-4 flex items-center justify-between">
+    <span class="font-stamp text-xs uppercase text-soil/60">Tổng ({{ cart.selected_items.count }} sản phẩm đã chọn)</span>
+    <span class="font-ticket text-2xl text-chili">{{ cart.total_amount|floatformat:0 }}đ</span>
+  </div>
+
+  <div class="text-right mt-4">
+    <a href="{% url 'storefront:checkout' %}"
+       class="inline-block bg-turmeric text-soil font-stamp uppercase text-sm px-8 py-3 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+      Tiến hành đặt hàng →
+    </a>
+  </div>
+{% else %}
+  <div class="text-center py-20">
+    <p class="font-stamp text-soil/40 uppercase mb-2">Giỏ trống</p>
+    <a href="{% url 'storefront:product-list' %}" class="text-turmeric hover:underline">Xem sản phẩm</a>
+  </div>
+{% endif %}
+{% endblock %}

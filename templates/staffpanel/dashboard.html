@@ -1,0 +1,65 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}Bảng điều khiển — Mùa Vườn{% endblock %}
+{% block panel_title %}Tổng quan{% endblock %}
+
+{% block panel_content %}
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+  <a href="{% url 'staffpanel:order-list' %}?status=PENDING" class="ticket-card rounded-sm p-4 hover:shadow-lg transition-shadow">
+    <p class="font-ticket text-3xl text-chili">{{ pending_count }}</p>
+    <p class="font-stamp text-xs uppercase text-soil/50 mt-1">Chờ xác nhận</p>
+  </a>
+  <a href="{% url 'staffpanel:order-list' %}?status=CONFIRMED" class="ticket-card rounded-sm p-4 hover:shadow-lg transition-shadow">
+    <p class="font-ticket text-3xl text-turmeric">{{ confirmed_count }}</p>
+    <p class="font-stamp text-xs uppercase text-soil/50 mt-1">Đã xác nhận</p>
+  </a>
+  <div class="ticket-card rounded-sm p-4">
+    <p class="font-ticket text-3xl text-soil">{{ today_order_count }}</p>
+    <p class="font-stamp text-xs uppercase text-soil/50 mt-1">Đơn hôm nay</p>
+  </div>
+  <div class="ticket-card rounded-sm p-4">
+    <p class="font-ticket text-3xl {% if out_of_stock_count %}text-chili{% else %}text-leaf{% endif %}">{{ out_of_stock_count }}</p>
+    <p class="font-stamp text-xs uppercase text-soil/50 mt-1">Sản phẩm hết hàng</p>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-8">
+  <section>
+    <h2 class="font-stamp text-xs uppercase tracking-widest text-soil/60 mb-3">Đơn hàng gần đây</h2>
+    <div class="space-y-2">
+      {% for order in recent_orders %}
+        <a href="{% url 'staffpanel:order-detail' order.order_code %}" class="ticket-card rounded-sm p-3 flex items-center justify-between text-sm hover:shadow-lg transition-shadow block">
+          <div>
+            <p class="font-ticket text-soil/70">{{ order.order_code }}</p>
+            <p class="font-body text-soil/50">{{ order.customer.email }}</p>
+          </div>
+          <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full
+            {% if order.status == 'DELIVERED' %}bg-leaf/10 text-leaf
+            {% elif order.status == 'CANCELLED' %}bg-chili/10 text-chili
+            {% else %}bg-turmeric/10 text-turmeric{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </a>
+      {% empty %}
+        <p class="font-body text-sm text-soil/40">Chưa có đơn hàng nào.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-stamp text-xs uppercase tracking-widest text-soil/60">Sắp hết hàng</h2>
+      <a href="{% url 'staffpanel:inventory-list' %}?filter=low_stock" class="font-stamp text-xs text-turmeric hover:underline">Xem tất cả →</a>
+    </div>
+    <div class="space-y-2">
+      {% for inv in low_stock %}
+        <div class="ticket-card rounded-sm p-3 flex items-center justify-between text-sm">
+          <span class="font-body">{{ inv.product.name }}</span>
+          <span class="font-ticket text-turmeric">còn {{ inv.quantity }} {{ inv.product.unit }}</span>
+        </div>
+      {% empty %}
+        <p class="font-body text-sm text-soil/40">Không có sản phẩm nào sắp hết hàng.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

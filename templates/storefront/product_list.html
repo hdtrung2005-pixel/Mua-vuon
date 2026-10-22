@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Sản phẩm — Mùa Vườn{% endblock %}
+
+{% block content %}
+<div class="flex items-baseline justify-between mb-6 flex-wrap gap-3">
+  <h1 class="font-display text-3xl uppercase">
+    {% if search %}Kết quả cho "{{ search }}"{% else %}Tất cả sản phẩm{% endif %}
+  </h1>
+  <span class="font-stamp text-xs text-soil/50">{{ page_obj.paginator.count }} sản phẩm</span>
+</div>
+
+<div class="flex flex-wrap gap-4 mb-8 items-center">
+  <div class="flex flex-wrap gap-2">
+    <a href="?{% if search %}search={{ search }}&{% endif %}sort={{ sort }}"
+       class="text-xs font-body px-3 py-1 rounded-full border {% if not category_slug %}bg-soil text-paper border-soil{% else %}border-soil/20 hover:border-turmeric{% endif %}">
+      Tất cả
+    </a>
+    {% for cat in categories %}
+      <a href="?category={{ cat.slug }}{% if search %}&search={{ search }}{% endif %}&sort={{ sort }}"
+         class="text-xs font-body px-3 py-1 rounded-full border {% if category_slug == cat.slug %}bg-soil text-paper border-soil{% else %}border-soil/20 hover:border-turmeric{% endif %}">
+        {{ cat.name }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <form method="get" class="ml-auto flex items-center gap-2 text-xs font-body">
+    {% if search %}<input type="hidden" name="search" value="{{ search }}">{% endif %}
+    {% if category_slug %}<input type="hidden" name="category" value="{{ category_slug }}">{% endif %}
+    <label for="sort" class="text-soil/60">Sắp xếp:</label>
+    <select name="sort" id="sort" onchange="this.form.submit()"
+            class="border border-soil/20 rounded-sm px-2 py-1 focus:outline-none focus:ring-2 focus:ring-turmeric">
+      <option value="-created_at" {% if sort == "-created_at" %}selected{% endif %}>Mới nhất</option>
+      <option value="price" {% if sort == "price" %}selected{% endif %}>Giá tăng dần</option>
+      <option value="-price" {% if sort == "-price" %}selected{% endif %}>Giá giảm dần</option>
+      <option value="name" {% if sort == "name" %}selected{% endif %}>Tên A-Z</option>
+    </select>
+  </form>
+</div>
+
+{% if page_obj.object_list %}
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
+    {% for product in page_obj %}
+      {% include "storefront/_product_card.html" with product=product %}
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+    <nav class="flex justify-center gap-2 font-stamp text-xs">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}{% if search %}&search={{ search }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}"
+           class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">← Trước</a>
+      {% endif %}
+      <span class="px-3 py-1.5 text-soil/50">Trang {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&sort={{ sort }}{% if search %}&search={{ search }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}"
+           class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">Sau →</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% else %}
+  <div class="text-center py-20">
+    <p class="font-stamp text-soil/40 uppercase mb-2">Phiếu trống</p>
+    <p class="text-soil/60">Không tìm thấy sản phẩm phù hợp — thử từ khóa hoặc danh mục khác.</p>
+  </div>
+{% endif %}
+{% endblock %}

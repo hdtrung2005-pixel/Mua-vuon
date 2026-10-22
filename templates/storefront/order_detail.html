@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Đơn {{ order.order_code }} — Mùa Vườn{% endblock %}
+
+{% block content %}
+<nav class="font-stamp text-xs text-soil/50 mb-4 uppercase">
+  <a href="{% url 'storefront:order-list' %}" class="hover:text-turmeric">Đơn hàng</a> / <span>{{ order.order_code }}</span>
+</nav>
+
+<div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+  <h1 class="font-display text-3xl uppercase">{{ order.order_code }}</h1>
+  <span class="font-stamp text-xs uppercase px-3 py-1 rounded-full
+    {% if order.status == 'DELIVERED' %}bg-leaf/10 text-leaf
+    {% elif order.status == 'CANCELLED' %}bg-chili/10 text-chili
+    {% else %}bg-turmeric/10 text-turmeric{% endif %}">
+    {{ order.get_status_display }}
+  </span>
+</div>
+
+<div class="grid md:grid-cols-3 gap-8">
+  <div class="md:col-span-2 space-y-3">
+    {% for item in order.items.all %}
+      <div class="ticket-card rounded-sm p-4 flex justify-between">
+        <div>
+          <p class="font-body font-semibold text-sm">{{ item.product_name_snapshot }}</p>
+          <p class="font-ticket text-xs text-soil/50">{{ item.quantity }} × {{ item.price_at_purchase|floatformat:0 }}đ</p>
+        </div>
+        <span class="font-ticket text-sm text-chili">{{ item.subtotal|floatformat:0 }}đ</span>
+      </div>
+    {% endfor %}
+
+    {% if order.is_cancellable %}
+      <form method="post" class="pt-2" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn này?');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="cancel">
+        <input type="text" name="reason" placeholder="Lý do hủy (tùy chọn)"
+               class="border border-soil/20 rounded-sm px-3 py-2 text-sm mr-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+        <button type="submit" class="font-stamp uppercase text-xs px-4 py-2 border border-chili text-chili rounded-sm hover:bg-chili hover:text-paper transition-colors">
+          Hủy đơn hàng
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <aside class="space-y-4">
+    <div class="ticket-card rounded-sm p-4">
+      <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Địa chỉ giao hàng</h2>
+      <p class="font-body text-sm">
+        <strong>{{ order.shipping_address.full_name }}</strong> — {{ order.shipping_address.phone }}<br>
+        <span class="text-soil/60">{{ order.shipping_address.detail }}, {{ order.shipping_address.ward }}, {{ order.shipping_address.district }}, {{ order.shipping_address.province }}</span>
+      </p>
+    </div>
+
+    <div class="ticket-card rounded-sm p-4">
+      <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Thanh toán</h2>
+      <p class="font-body text-sm">{{ order.payment.get_method_display }} — <span class="text-soil/60">{{ order.payment.get_status_display }}</span></p>
+    </div>
+
+    {% if order.shipping %}
+      <div class="ticket-card rounded-sm p-4">
+        <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Vận chuyển</h2>
+        <p class="font-body text-sm">{{ order.shipping.get_status_display }}</p>
+        <p class="font-ticket text-xs text-soil/40 mt-1">{{ order.shipping.tracking_code }}</p>
+      </div>
+    {% endif %}
+
+    {% if refund_request %}
+      <div class="ticket-card rounded-sm p-4">
+        <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Yêu cầu hoàn tiền</h2>
+        <p class="font-body text-sm mb-1">{{ refund_request.get_status_display }}</p>
+        <p class="font-ticket text-xs text-chili">{{ refund_request.amount|floatformat:0 }}đ</p>
+        {% if refund_request.staff_note %}<p class="font-body text-xs text-soil/50 mt-1">Phản hồi: {{ refund_request.staff_note }}</p>{% endif %}
+      </div>
+    {% elif can_request_refund %}
+      <div class="ticket-card rounded-sm p-4">
+        <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Không hài lòng với đơn hàng?</h2>
+        <form method="post" class="space-y-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="request_refund">
+          <textarea name="reason" rows="2" placeholder="Lý do yêu cầu hoàn tiền" required
+                    class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric"></textarea>
+          <input type="number" name="amount" value="{{ order.final_amount|floatformat:0 }}" max="{{ order.final_amount|floatformat:0 }}" min="0"
+                 class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm font-ticket focus:outline-none focus:ring-2 focus:ring-turmeric">
+          <button type="submit" class="w-full border border-chili text-chili font-stamp uppercase text-xs py-2 rounded-sm hover:bg-chili hover:text-paper transition-colors">
+            Yêu cầu hoàn tiền
+          </button>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="ticket-card rounded-sm p-4">
+      <div class="flex justify-between text-sm font-body mb-1"><span>Tạm tính</span><span class="font-ticket">{{ order.total_amount|floatformat:0 }}đ</span></div>
+      <div class="flex justify-between text-sm font-body mb-1"><span>Phí ship</span><span class="font-ticket">{{ order.shipping_fee|floatformat:0 }}đ</span></div>
+      {% if order.discount %}<div class="flex justify-between text-sm font-body mb-1"><span>Giảm giá</span><span class="font-ticket">-{{ order.discount|floatformat:0 }}đ</span></div>{% endif %}
+      <div class="flex justify-between font-body font-semibold border-t border-soil/10 mt-2 pt-2">
+        <span>Tổng cộng</span><span class="font-ticket text-chili">{{ order.final_amount|floatformat:0 }}đ</span>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

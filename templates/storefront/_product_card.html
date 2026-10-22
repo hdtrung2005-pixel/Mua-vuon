@@ -1,0 +1,31 @@
+{% load static %}
+<a href="{% url 'storefront:product-detail' product.slug %}"
+   class="ticket-card group rounded-sm p-4 flex flex-col hover:shadow-lg transition-shadow relative">
+  {% if badge %}
+    <span class="stamp-badge {% if badge_style == 'leaf' %}stamp-badge--leaf{% endif %} absolute -top-4 -right-3 z-10 bg-paper">
+      {{ badge }}
+    </span>
+  {% endif %}
+
+  <div class="aspect-square bg-paper/60 rounded-sm mb-3 flex items-center justify-center overflow-hidden">
+    {% if product.images.all %}
+      <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+    {% else %}
+      <span class="font-stamp text-xs text-soil/30 uppercase">Chưa có ảnh</span>
+    {% endif %}
+  </div>
+
+  <p class="font-stamp text-[0.65rem] uppercase tracking-wide text-soil/50 mb-1">{{ product.category.name|default:"" }}</p>
+  <h3 class="font-body font-semibold text-sm mb-2 group-hover:text-turmeric transition-colors line-clamp-2">
+    {{ product.name }}
+  </h3>
+
+  <div class="mt-auto flex items-baseline justify-between">
+    <span class="font-ticket text-base text-chili">
+      {{ product.effective_price|floatformat:0 }}đ<span class="text-xs text-soil/50">/{{ product.unit }}</span>
+    </span>
+    {% if product.discount_price %}
+      <span class="font-ticket text-xs text-soil/40 line-through">{{ product.price|floatformat:0 }}đ</span>
+    {% endif %}
+  </div>
+</a>

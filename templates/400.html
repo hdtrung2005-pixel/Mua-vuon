@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Yêu cầu không hợp lệ — Mùa Vườn{% endblock %}
+{% block content %}
+<div class="text-center py-24">
+  <p class="font-stamp text-8xl text-turmeric mb-4">400</p>
+  <p class="font-display text-3xl uppercase mb-3">Phiếu ghi không đúng mẫu</p>
+  <p class="font-body text-soil/60 mb-8 max-w-md mx-auto">
+    Yêu cầu gửi lên không hợp lệ — thử quay lại và thao tác lại từ đầu.
+  </p>
+  <a href="{% url 'storefront:home' %}"
+     class="inline-block bg-turmeric text-soil font-stamp uppercase text-sm px-6 py-2.5 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+    Về trang chủ
+  </a>
+</div>
+{% endblock %}

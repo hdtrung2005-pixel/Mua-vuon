@@ -1,0 +1,70 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}Tồn kho — Quản lý{% endblock %}
+{% block panel_title %}Tồn kho{% endblock %}
+
+{% block panel_content %}
+<div class="flex flex-wrap gap-2 mb-6">
+  <a href="?" class="text-xs font-body px-3 py-1 rounded-full border {% if not filter_type %}bg-soil text-paper border-soil{% else %}border-soil/20 hover:border-turmeric{% endif %}">Tất cả</a>
+  <a href="?filter=low_stock" class="text-xs font-body px-3 py-1 rounded-full border {% if filter_type == 'low_stock' %}bg-soil text-paper border-soil{% else %}border-soil/20 hover:border-turmeric{% endif %}">Sắp hết</a>
+  <a href="?filter=out_of_stock" class="text-xs font-body px-3 py-1 rounded-full border {% if filter_type == 'out_of_stock' %}bg-soil text-paper border-soil{% else %}border-soil/20 hover:border-turmeric{% endif %}">Hết hàng</a>
+</div>
+
+<div class="space-y-2">
+  {% for inv in page_obj %}
+    <div class="ticket-card rounded-sm p-4">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <p class="font-body font-semibold text-sm">{{ inv.product.name }}</p>
+          <p class="font-ticket text-xs text-soil/50">{{ inv.product.sku }} · {{ inv.product.category.name }}</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="font-ticket text-lg {% if inv.is_out_of_stock %}text-chili{% elif inv.is_low_stock %}text-turmeric{% else %}text-leaf{% endif %}">
+            {{ inv.quantity }} {{ inv.product.unit }}
+          </span>
+          <a href="{% url 'staffpanel:inventory-transactions' inv.id %}" class="font-stamp text-xs text-soil/40 hover:text-turmeric">Lịch sử</a>
+          <button type="button" onclick="document.getElementById('manage-{{ inv.id }}').classList.toggle('hidden')"
+                  class="font-stamp text-xs uppercase px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric hover:text-turmeric">
+            Nhập / Điều chỉnh
+          </button>
+        </div>
+      </div>
+
+      <div id="manage-{{ inv.id }}" class="hidden grid sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-soil/10">
+        <form method="post" class="space-y-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="receive">
+          <input type="hidden" name="product_id" value="{{ inv.product.id }}">
+          <p class="font-stamp text-xs uppercase text-soil/50">Nhập kho (cộng thêm)</p>
+          <input type="number" name="quantity" min="1" placeholder="Số lượng nhập" required
+                 class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm font-ticket focus:outline-none focus:ring-2 focus:ring-turmeric">
+          <input type="text" name="note" placeholder="Ghi chú (VD: nhập từ NCC A)"
+                 class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+          <button type="submit" class="bg-leaf text-paper font-stamp uppercase text-xs px-4 py-2 rounded-sm hover:opacity-90">Nhập kho</button>
+        </form>
+
+        <form method="post" class="space-y-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="adjust">
+          <input type="hidden" name="product_id" value="{{ inv.product.id }}">
+          <p class="font-stamp text-xs uppercase text-soil/50">Điều chỉnh sau kiểm kê (set thẳng)</p>
+          <input type="number" name="new_quantity" min="0" placeholder="Số lượng thực tế" required
+                 class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm font-ticket focus:outline-none focus:ring-2 focus:ring-turmeric">
+          <input type="text" name="note" placeholder="Ghi chú (VD: kiểm kê định kỳ)"
+                 class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+          <button type="submit" class="bg-turmeric text-soil font-stamp uppercase text-xs px-4 py-2 rounded-sm hover:opacity-90">Điều chỉnh</button>
+        </form>
+      </div>
+    </div>
+  {% empty %}
+    <p class="font-body text-sm text-soil/40 py-10 text-center">Không có sản phẩm nào.</p>
+  {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+  <nav class="flex justify-center gap-2 font-stamp text-xs mt-6">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if filter_type %}&filter={{ filter_type }}{% endif %}" class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">← Trước</a>{% endif %}
+    <span class="px-3 py-1.5 text-soil/50">Trang {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if filter_type %}&filter={{ filter_type }}{% endif %}" class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">Sau →</a>{% endif %}
+  </nav>
+{% endif %}
+{% endblock %}

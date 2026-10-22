@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng nhập — Mùa Vườn{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+  <p class="font-stamp text-xs uppercase tracking-widest text-chili mb-2 text-center">Chào mừng trở lại</p>
+  <h1 class="font-display text-3xl uppercase mb-6 text-center">Đăng nhập</h1>
+
+  {% if error %}
+    <div class="bg-chili/10 border-l-4 border-chili text-chili text-sm px-4 py-2 rounded-sm mb-4">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" class="ticket-card rounded-sm p-6 space-y-4">
+    {% csrf_token %}
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Email</label>
+      <input type="email" name="username" required autofocus
+             class="w-full border border-soil/20 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+    </div>
+    <div>
+      <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Mật khẩu</label>
+      <input type="password" name="password" required
+             class="w-full border border-soil/20 rounded-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turmeric">
+    </div>
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
+    <button type="submit"
+            class="w-full bg-turmeric text-soil font-stamp uppercase text-sm py-2.5 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+      Đăng nhập
+    </button>
+  </form>
+
+  <p class="text-center text-sm text-soil/60 mt-4">
+    Chưa có tài khoản? <a href="{% url 'storefront:register' %}" class="text-turmeric hover:underline">Đăng ký ngay</a>
+  </p>
+</div>
+{% endblock %}

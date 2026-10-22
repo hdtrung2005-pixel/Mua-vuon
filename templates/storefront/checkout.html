@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Thanh toán — Mùa Vườn{% endblock %}
+
+{% block content %}
+<h1 class="font-display text-3xl uppercase mb-6">Thanh toán</h1>
+
+<div class="grid md:grid-cols-3 gap-8">
+  <div class="md:col-span-2 space-y-6">
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-stamp text-xs uppercase tracking-widest text-soil/60">Địa chỉ giao hàng</h2>
+        <a href="{% url 'storefront:address-list' %}" class="font-stamp text-xs text-turmeric hover:underline">Quản lý địa chỉ →</a>
+      </div>
+
+      {% if addresses %}
+        <form method="post" id="checkout-form" class="space-y-2 mb-4">
+          {% csrf_token %}
+          {% for addr in addresses %}
+            <label class="ticket-card rounded-sm p-4 flex items-start gap-3 cursor-pointer block">
+              <input type="radio" name="address_id" value="{{ addr.id }}" {% if addr.is_default or forloop.first %}checked{% endif %} class="mt-1">
+              <span class="font-body text-sm">
+                <strong>{{ addr.full_name }}</strong> — {{ addr.phone }}<br>
+                <span class="text-soil/60">{{ addr.detail }}, {{ addr.ward }}, {{ addr.district }}, {{ addr.province }}</span>
+                {% if addr.note %}<br><span class="text-soil/40 text-xs">Ghi chú: {{ addr.note }}</span>{% endif %}
+              </span>
+            </label>
+          {% endfor %}
+
+          <div class="pt-2">
+            <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Phương thức thanh toán</label>
+            <select name="payment_method" class="border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+              <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+              <option value="BANK_TRANSFER">Chuyển khoản ngân hàng</option>
+            </select>
+          </div>
+
+          <div class="pt-2">
+            <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Ghi chú cho đơn hàng</label>
+            <input type="text" name="note" placeholder="Ví dụ: giao sau 18h"
+                   class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+          </div>
+        </form>
+      {% else %}
+        <p class="font-body text-sm text-soil/60 mb-4">Bạn chưa có địa chỉ nào — thêm địa chỉ mới bên dưới.</p>
+      {% endif %}
+    </section>
+
+    <details class="ticket-card rounded-sm p-4" {% if not addresses %}open{% endif %}>
+      <summary class="font-stamp text-xs uppercase cursor-pointer text-turmeric">+ Thêm địa chỉ mới</summary>
+      <form method="post" class="grid sm:grid-cols-2 gap-3 mt-4">
+        {% csrf_token %}
+        <input type="hidden" name="form" value="new_address">
+        <input type="text" name="full_name" placeholder="Họ tên người nhận" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+        <input type="text" name="phone" placeholder="Số điện thoại" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+        <input type="text" name="province" placeholder="Tỉnh/thành" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+        <input type="text" name="district" placeholder="Quận/huyện" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+        <input type="text" name="ward" placeholder="Phường/xã" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm">
+        <input type="text" name="detail" placeholder="Địa chỉ chi tiết" required class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+        <input type="text" name="note" placeholder="Ghi chú (tùy chọn)" class="border border-soil/20 rounded-sm px-3 py-2 text-sm sm:col-span-2">
+        <button type="submit" class="sm:col-span-2 bg-soil text-paper font-stamp uppercase text-xs py-2 rounded-sm hover:bg-turmeric hover:text-soil transition-colors">
+          Lưu địa chỉ
+        </button>
+      </form>
+    </details>
+  </div>
+
+  <aside class="ticket-card rounded-sm p-5 h-fit">
+    <h2 class="font-stamp text-xs uppercase tracking-widest text-soil/60 mb-4">Đơn hàng</h2>
+    <div class="space-y-2 mb-4">
+      {% for item in cart.selected_items %}
+        <div class="flex justify-between text-sm font-body">
+          <span class="truncate pr-2">{{ item.quantity }}× {{ item.product.name }}</span>
+          <span class="font-ticket shrink-0">{{ item.subtotal|floatformat:0 }}đ</span>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="border-t border-soil/10 pt-3 flex justify-between font-body font-semibold">
+      <span>Tổng cộng</span>
+      <span class="font-ticket text-chili text-lg">{{ cart.total_amount|floatformat:0 }}đ</span>
+    </div>
+
+    {% if addresses %}
+      <button type="submit" form="checkout-form"
+              class="w-full mt-5 bg-turmeric text-soil font-stamp uppercase text-sm py-3 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+        Đặt hàng
+      </button>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

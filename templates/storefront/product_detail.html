@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — Mùa Vườn{% endblock %}
+
+{% block content %}
+<nav class="font-stamp text-xs text-soil/50 mb-6 uppercase">
+  <a href="{% url 'storefront:home' %}" class="hover:text-turmeric">Trang chủ</a> /
+  <a href="{% url 'storefront:product-list' %}?category={{ product.category.slug }}" class="hover:text-turmeric">{{ product.category.name }}</a> /
+  <span>{{ product.name }}</span>
+</nav>
+
+<div class="grid md:grid-cols-2 gap-10 mb-16">
+  <div class="aspect-square bg-white ticket-card rounded-sm overflow-hidden flex items-center justify-center">
+    {% if product.images.all %}
+      <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+    {% else %}
+      <span class="font-stamp text-soil/30 uppercase text-sm">Chưa có ảnh</span>
+    {% endif %}
+  </div>
+
+  <div>
+    <p class="font-stamp text-xs uppercase tracking-widest text-soil/50 mb-2">{{ product.category.name }}</p>
+    <h1 class="font-display text-4xl uppercase mb-3 leading-tight">{{ product.name }}</h1>
+
+    {% if rating_summary.count %}
+      <div class="flex items-center gap-2 mb-4 font-body text-sm">
+        <span class="text-turmeric">{% for i in "12345" %}{% if forloop.counter <= rating_summary.average %}★{% else %}☆{% endif %}{% endfor %}</span>
+        <span class="text-soil/60">{{ rating_summary.average }} ({{ rating_summary.count }} đánh giá)</span>
+      </div>
+    {% else %}
+      <p class="font-body text-sm text-soil/40 mb-4">Chưa có đánh giá nào</p>
+    {% endif %}
+
+    <div class="flex items-baseline gap-3 mb-1">
+      <span class="font-ticket text-3xl text-chili">{{ product.effective_price|floatformat:0 }}đ</span>
+      {% if product.discount_price %}
+        <span class="font-ticket text-lg text-soil/40 line-through">{{ product.price|floatformat:0 }}đ</span>
+      {% endif %}
+      <span class="font-body text-sm text-soil/50">/{{ product.unit }}</span>
+    </div>
+
+    {% if product.origin %}
+      <p class="font-body text-sm text-leaf mb-4">📍 Xuất xứ: {{ product.origin }}</p>
+    {% endif %}
+
+    <p class="font-body text-soil/80 mb-6 whitespace-pre-line">{{ product.description|default:"Chưa có mô tả." }}</p>
+
+    <p class="font-stamp text-xs uppercase mb-4 {% if product.inventory.is_out_of_stock %}text-chili{% elif product.inventory.is_low_stock %}text-turmeric{% else %}text-leaf{% endif %}">
+      {% if product.inventory.is_out_of_stock %}
+        Hết hàng
+      {% elif product.inventory.is_low_stock %}
+        Sắp hết — còn {{ product.inventory.quantity }} {{ product.unit }}
+      {% else %}
+        Còn hàng — {{ product.inventory.quantity }} {{ product.unit }}
+      {% endif %}
+    </p>
+
+    {% if request.user.is_authenticated %}
+      <div class="flex items-center gap-3 flex-wrap">
+        {% if not product.inventory.is_out_of_stock %}
+          <form method="post" class="flex items-center gap-3">
+            {% csrf_token %}
+            <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory.quantity }}"
+                   class="w-20 border border-soil/20 rounded-sm px-3 py-2 font-ticket focus:outline-none focus:ring-2 focus:ring-turmeric">
+            <button type="submit"
+                    class="bg-turmeric text-soil font-stamp uppercase text-sm px-6 py-2.5 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+              Thêm vào giỏ
+            </button>
+          </form>
+        {% endif %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="form" value="toggle_wishlist">
+          <button type="submit" aria-label="{% if is_wishlisted %}Bỏ yêu thích{% else %}Thêm yêu thích{% endif %}"
+                  class="w-11 h-11 flex items-center justify-center rounded-sm border {% if is_wishlisted %}border-chili bg-chili/10 text-chili{% else %}border-soil/20 text-soil/40 hover:border-chili hover:text-chili{% endif %} transition-colors text-lg">
+            {% if is_wishlisted %}♥{% else %}♡{% endif %}
+          </button>
+        </form>
+      </div>
+    {% else %}
+      <a href="{% url 'accounts:login' %}?next={{ request.path }}"
+         class="inline-block bg-soil text-paper font-stamp uppercase text-sm px-6 py-2.5 rounded-sm hover:bg-turmeric hover:text-soil transition-colors">
+        Đăng nhập để mua
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% if related_products %}
+<section class="mb-16">
+  <h2 class="font-display text-2xl uppercase mb-4">Sản phẩm cùng danh mục</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for p in related_products %}
+      {% include "storefront/_product_card.html" with product=p %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <h2 class="font-display text-2xl uppercase mb-4">Đánh giá ({{ rating_summary.count }})</h2>
+
+  {% if request.user.is_authenticated %}
+    {% if has_purchased %}
+      <form method="post" class="ticket-card rounded-sm p-4 mb-6">
+        {% csrf_token %}
+        <input type="hidden" name="form" value="review">
+        <p class="font-stamp text-xs uppercase text-soil/60 mb-2">
+          {% if my_review %}Sửa đánh giá của bạn{% else %}Viết đánh giá{% endif %}
+        </p>
+        <div class="mb-3">
+          <label class="font-stamp text-xs uppercase text-soil/60 block mb-1">Số sao</label>
+          <select name="rating" class="border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+            {% for i in "54321" %}
+              <option value="{{ i }}" {% if my_review.rating|stringformat:"s" == i or not my_review and i == "5" %}selected{% endif %}>
+                {{ i }} sao {% if i == "5" %}— Rất tốt{% elif i == "1" %}— Không hài lòng{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <textarea name="content" rows="2" placeholder="Cảm nhận của bạn về sản phẩm này..."
+                  class="w-full border border-soil/20 rounded-sm px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-turmeric">{% if my_review %}{{ my_review.content }}{% endif %}</textarea>
+        <div class="flex gap-2">
+          <button type="submit" class="bg-turmeric text-soil font-stamp uppercase text-xs px-5 py-2 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+            {% if my_review %}Cập nhật{% else %}Gửi đánh giá{% endif %}
+          </button>
+        </div>
+      </form>
+      {% if my_review %}
+        <form method="post" class="mb-6 -mt-4" onsubmit="return confirm('Xóa đánh giá này?');">
+          {% csrf_token %}
+          <input type="hidden" name="form" value="delete_review">
+          <input type="hidden" name="review_id" value="{{ my_review.id }}">
+          <button type="submit" class="font-stamp uppercase text-xs px-4 py-2 border border-chili text-chili rounded-sm hover:bg-chili hover:text-paper transition-colors">
+            Xóa đánh giá
+          </button>
+        </form>
+      {% endif %}
+    {% else %}
+      <p class="font-body text-sm text-soil/40 mb-6">Bạn cần mua và nhận sản phẩm này trước khi có thể đánh giá.</p>
+    {% endif %}
+
+    {% if my_review %}
+      <div class="ticket-card rounded-sm p-4 mb-4 border-l-4 border-turmeric">
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-body font-semibold text-sm">Bạn</span>
+          <span class="text-turmeric text-sm">{% for i in "12345" %}{% if forloop.counter <= my_review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+        </div>
+        {% if my_review.content %}<p class="font-body text-sm text-soil/70">{{ my_review.content }}</p>{% endif %}
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {% if reviews %}
+    <div class="space-y-4">
+      {% for review in reviews %}
+        <div class="ticket-card rounded-sm p-4">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-body font-semibold text-sm">{{ review.user.full_name|default:review.user.email }}</span>
+            <span class="text-turmeric text-sm">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+          </div>
+          {% if review.content %}<p class="font-body text-sm text-soil/70">{{ review.content }}</p>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% elif not my_review %}
+    <p class="font-body text-sm text-soil/40">Chưa có đánh giá nào cho sản phẩm này.</p>
+  {% endif %}
+</section>
+{% endblock %}

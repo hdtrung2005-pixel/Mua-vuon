@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Không tìm thấy trang — Mùa Vườn{% endblock %}
+{% block content %}
+<div class="text-center py-24">
+  <p class="font-stamp text-8xl text-turmeric mb-4">404</p>
+  <p class="font-display text-3xl uppercase mb-3">Phiếu này đã hết hạn</p>
+  <p class="font-body text-soil/60 mb-8 max-w-md mx-auto">
+    Trang bạn tìm không tồn tại — có thể sản phẩm đã hết hàng, đường dẫn sai, hoặc phiếu đã bị gỡ khỏi sạp.
+  </p>
+  <a href="{% url 'storefront:home' %}"
+     class="inline-block bg-turmeric text-soil font-stamp uppercase text-sm px-6 py-2.5 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+    Về trang chủ
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}Sản phẩm — Quản lý{% endblock %}
+{% block panel_title %}Sản phẩm{% endblock %}
+
+{% block panel_content %}
+<div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+  <form method="get" class="flex gap-2">
+    <input type="text" name="search" value="{{ search }}" placeholder="Tìm theo tên..."
+           class="border border-soil/20 rounded-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
+    <button type="submit" class="font-stamp uppercase text-xs px-4 py-2 border border-soil/20 rounded-sm hover:border-turmeric">Tìm</button>
+  </form>
+  <a href="{% url 'staffpanel:product-create' %}"
+     class="bg-turmeric text-soil font-stamp uppercase text-xs px-5 py-2.5 rounded-sm hover:bg-soil hover:text-paper transition-colors">
+    + Thêm sản phẩm
+  </a>
+</div>
+
+<div class="space-y-2 mb-6">
+  {% for product in page_obj %}
+    <a href="{% url 'staffpanel:product-edit' product.id %}" class="ticket-card rounded-sm p-4 flex items-center justify-between hover:shadow-lg transition-shadow block">
+      <div>
+        <p class="font-body font-semibold text-sm">{{ product.name }}</p>
+        <p class="font-ticket text-xs text-soil/50">{{ product.sku }} · {{ product.category.name }}</p>
+      </div>
+      <div class="text-right flex items-center gap-4">
+        <span class="font-ticket text-sm text-chili">{{ product.effective_price|floatformat:0 }}đ</span>
+        <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full
+          {% if product.status == 'ACTIVE' %}bg-leaf/10 text-leaf
+          {% elif product.status == 'OUT_OF_STOCK' %}bg-chili/10 text-chili
+          {% else %}bg-soil/10 text-soil/60{% endif %}">
+          {{ product.get_status_display }}
+        </span>
+        <span class="font-ticket text-xs text-soil/40">Kho: {{ product.inventory.quantity }}</span>
+      </div>
+    </a>
+  {% empty %}
+    <p class="font-body text-sm text-soil/40 py-10 text-center">Không tìm thấy sản phẩm nào.</p>
+  {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+  <nav class="flex justify-center gap-2 font-stamp text-xs">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">← Trước</a>{% endif %}
+    <span class="px-3 py-1.5 text-soil/50">Trang {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}" class="px-3 py-1.5 border border-soil/20 rounded-sm hover:border-turmeric">Sau →</a>{% endif %}
+  </nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "staffpanel/_base.html" %}
+{% block title %}Doanh thu — Quản lý{% endblock %}
+{% block panel_title %}Doanh thu{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+{% endblock %}
+
+{% block panel_content %}
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+  <div class="ticket-card rounded-sm p-4">
+    <p class="font-ticket text-2xl text-chili">{{ total_revenue|floatformat:0 }}đ</p>
+    <p class="font-stamp text-xs uppercase text-soil/50 mt-1">Tổng doanh thu (đơn đã giao)</p>
+  </div>
+  <div class="ticket-card rounded-sm p-4">
+    <p class="font-ticket text-2xl text-leaf">{{ delivered_count }}</p>
+    <p class="font-stamp text-xs uppercase text-soil/50 mt-1">Đơn đã giao thành công</p>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-3 gap-8 mb-10">
+  <div class="md:col-span-2 ticket-card rounded-sm p-5">
+    <h2 class="font-stamp text-xs uppercase text-soil/60 mb-4">Doanh thu 30 ngày gần đây</h2>
+    <canvas id="revenueChart" height="100"></canvas>
+  </div>
+  <div class="ticket-card rounded-sm p-5">
+    <h2 class="font-stamp text-xs uppercase text-soil/60 mb-4">Đơn hàng theo trạng thái</h2>
+    <canvas id="statusChart"></canvas>
+  </div>
+</div>
+
+<section>
+  <h2 class="font-stamp text-xs uppercase tracking-widest text-soil/60 mb-3">Top 5 sản phẩm bán chạy</h2>
+  <div class="space-y-2">
+    {% for product in top_products %}
+      <div class="ticket-card rounded-sm p-3 flex items-center justify-between text-sm">
+        <span class="font-body">{{ forloop.counter }}. {{ product.name }}</span>
+        <span class="font-ticket text-chili">{{ product.effective_price|floatformat:0 }}đ</span>
+      </div>
+    {% empty %}
+      <p class="font-body text-sm text-soil/40">Chưa có dữ liệu bán hàng.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  const soil = '#2B2118', turmeric = '#D89B2E', leaf = '#3F5C3E', chili = '#B23A2E';
+
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: 'Doanh thu (đ)',
+        data: {{ chart_data|safe }},
+        borderColor: turmeric,
+        backgroundColor: turmeric + '22',
+        fill: true,
+        tension: 0.2,
+      }],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { maxTicksLimit: 8 } } },
+    },
+  });
+
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: {{ status_labels|safe }},
+      datasets: [{
+        data: {{ status_data|safe }},
+        backgroundColor: [turmeric, leaf, chili, soil, '#8a8a8a', '#c9a96e', '#6b7f6a', '#a34a3d'],
+      }],
+    },
+    options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } } },
+  });
+</script>
+{% endblock %}

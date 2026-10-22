@@ -1,0 +1,14 @@
+@"
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+media/
+staticfiles/
+db.sqlite3
+.coverage
+htmlcov/
+.pytest_cache/
+"@ | Out-File -Encoding utf8 .gitignore
+.vs/

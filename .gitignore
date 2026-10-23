@@ -12,3 +12,5 @@ htmlcov/
 .pytest_cache/
 "@ | Out-File -Encoding utf8 .gitignore
 .vs/
+
+fix_vnd.py

@@ -32,9 +32,9 @@
     {% endif %}
 
     <div class="flex items-baseline gap-3 mb-1">
-      <span class="font-ticket text-3xl text-chili">{{ product.effective_price|floatformat:0 }}đ</span>
+      <span class="font-ticket text-3xl text-chili">{{ product.effective_price|vnd }}</span>
       {% if product.discount_price %}
-        <span class="font-ticket text-lg text-soil/40 line-through">{{ product.price|floatformat:0 }}đ</span>
+        <span class="font-ticket text-lg text-soil/40 line-through">{{ product.price|vnd }}</span>
       {% endif %}
       <span class="font-body text-sm text-soil/50">/{{ product.unit }}</span>
     </div>

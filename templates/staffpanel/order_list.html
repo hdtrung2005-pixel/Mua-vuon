@@ -18,7 +18,7 @@
         <p class="font-body text-sm text-soil/50">{{ order.customer.email }} · {{ order.created_at|date:"d/m/Y H:i" }}</p>
       </div>
       <div class="text-right">
-        <p class="font-ticket text-chili">{{ order.final_amount|floatformat:0 }}đ</p>
+        <p class="font-ticket text-chili">{{ order.final_amount|vnd }}</p>
         <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full
           {% if order.status == 'DELIVERED' %}bg-leaf/10 text-leaf
           {% elif order.status == 'CANCELLED' %}bg-chili/10 text-chili

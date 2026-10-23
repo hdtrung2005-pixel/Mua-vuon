@@ -22,7 +22,7 @@
 
         <a href="{% url 'storefront:product-detail' item.product.slug %}" class="flex-1 min-w-0">
           <p class="font-body font-semibold text-sm truncate">{{ item.product.name }}</p>
-          <p class="font-ticket text-xs text-soil/50">{{ item.unit_price|floatformat:0 }}đ / {{ item.product.unit }} · còn {{ item.available_stock }}</p>
+          <p class="font-ticket text-xs text-soil/50">{{ item.unit_price|vnd }} / {{ item.product.unit }} · còn {{ item.available_stock }}</p>
         </a>
 
         <form method="post" class="flex items-center gap-2">
@@ -34,7 +34,7 @@
                  class="w-16 border border-soil/20 rounded-sm px-2 py-1 font-ticket text-sm text-center focus:outline-none focus:ring-2 focus:ring-turmeric">
         </form>
 
-        <span class="font-ticket text-sm text-chili w-24 text-right">{{ item.subtotal|floatformat:0 }}đ</span>
+        <span class="font-ticket text-sm text-chili w-24 text-right">{{ item.subtotal|vnd }}</span>
 
         <form method="post">
           {% csrf_token %}
@@ -48,7 +48,7 @@
 
   <div class="ticket-card rounded-sm p-4 flex items-center justify-between">
     <span class="font-stamp text-xs uppercase text-soil/60">Tổng ({{ cart.selected_items.count }} sản phẩm đã chọn)</span>
-    <span class="font-ticket text-2xl text-chili">{{ cart.total_amount|floatformat:0 }}đ</span>
+    <span class="font-ticket text-2xl text-chili">{{ cart.total_amount|vnd }}</span>
   </div>
 
   <div class="text-right mt-4">

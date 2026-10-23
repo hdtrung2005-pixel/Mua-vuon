@@ -11,14 +11,14 @@
       <div class="ticket-card rounded-sm p-4 flex justify-between">
         <div>
           <p class="font-body font-semibold text-sm">{{ item.product_name_snapshot }}</p>
-          <p class="font-ticket text-xs text-soil/50">{{ item.quantity }} × {{ item.price_at_purchase|floatformat:0 }}đ</p>
+          <p class="font-ticket text-xs text-soil/50">{{ item.quantity }} × {{ item.price_at_purchase|vnd }}</p>
         </div>
-        <span class="font-ticket text-sm text-chili">{{ item.subtotal|floatformat:0 }}đ</span>
+        <span class="font-ticket text-sm text-chili">{{ item.subtotal|vnd }}</span>
       </div>
     {% endfor %}
 
     <div class="ticket-card rounded-sm p-4 flex justify-between font-body font-semibold">
-      <span>Tổng cộng</span><span class="font-ticket text-chili">{{ order.final_amount|floatformat:0 }}đ</span>
+      <span>Tổng cộng</span><span class="font-ticket text-chili">{{ order.final_amount|vnd }}</span>
     </div>
   </div>
 

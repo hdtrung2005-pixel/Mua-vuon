@@ -71,13 +71,13 @@
       {% for item in cart.selected_items %}
         <div class="flex justify-between text-sm font-body">
           <span class="truncate pr-2">{{ item.quantity }}× {{ item.product.name }}</span>
-          <span class="font-ticket shrink-0">{{ item.subtotal|floatformat:0 }}đ</span>
+          <span class="font-ticket shrink-0">{{ item.subtotal|vnd }}</span>
         </div>
       {% endfor %}
     </div>
     <div class="border-t border-soil/10 pt-3 flex justify-between font-body font-semibold">
       <span>Tổng cộng</span>
-      <span class="font-ticket text-chili text-lg">{{ cart.total_amount|floatformat:0 }}đ</span>
+      <span class="font-ticket text-chili text-lg">{{ cart.total_amount|vnd }}</span>
     </div>
 
     {% if addresses %}

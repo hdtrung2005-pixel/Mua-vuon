@@ -23,9 +23,9 @@
       <div class="ticket-card rounded-sm p-4 flex justify-between">
         <div>
           <p class="font-body font-semibold text-sm">{{ item.product_name_snapshot }}</p>
-          <p class="font-ticket text-xs text-soil/50">{{ item.quantity }} × {{ item.price_at_purchase|floatformat:0 }}đ</p>
+          <p class="font-ticket text-xs text-soil/50">{{ item.quantity }} × {{ item.price_at_purchase|vnd }}</p>
         </div>
-        <span class="font-ticket text-sm text-chili">{{ item.subtotal|floatformat:0 }}đ</span>
+        <span class="font-ticket text-sm text-chili">{{ item.subtotal|vnd }}</span>
       </div>
     {% endfor %}
 
@@ -68,7 +68,7 @@
       <div class="ticket-card rounded-sm p-4">
         <h2 class="font-stamp text-xs uppercase text-soil/50 mb-2">Yêu cầu hoàn tiền</h2>
         <p class="font-body text-sm mb-1">{{ refund_request.get_status_display }}</p>
-        <p class="font-ticket text-xs text-chili">{{ refund_request.amount|floatformat:0 }}đ</p>
+        <p class="font-ticket text-xs text-chili">{{ refund_request.amount|vnd }}</p>
         {% if refund_request.staff_note %}<p class="font-body text-xs text-soil/50 mt-1">Phản hồi: {{ refund_request.staff_note }}</p>{% endif %}
       </div>
     {% elif can_request_refund %}
@@ -89,11 +89,11 @@
     {% endif %}
 
     <div class="ticket-card rounded-sm p-4">
-      <div class="flex justify-between text-sm font-body mb-1"><span>Tạm tính</span><span class="font-ticket">{{ order.total_amount|floatformat:0 }}đ</span></div>
-      <div class="flex justify-between text-sm font-body mb-1"><span>Phí ship</span><span class="font-ticket">{{ order.shipping_fee|floatformat:0 }}đ</span></div>
-      {% if order.discount %}<div class="flex justify-between text-sm font-body mb-1"><span>Giảm giá</span><span class="font-ticket">-{{ order.discount|floatformat:0 }}đ</span></div>{% endif %}
+      <div class="flex justify-between text-sm font-body mb-1"><span>Tạm tính</span><span class="font-ticket">{{ order.total_amount|vnd }}</span></div>
+      <div class="flex justify-between text-sm font-body mb-1"><span>Phí ship</span><span class="font-ticket">{{ order.shipping_fee|vnd }}</span></div>
+      {% if order.discount %}<div class="flex justify-between text-sm font-body mb-1"><span>Giảm giá</span><span class="font-ticket">-{{ order.discount|vnd }}</span></div>{% endif %}
       <div class="flex justify-between font-body font-semibold border-t border-soil/10 mt-2 pt-2">
-        <span>Tổng cộng</span><span class="font-ticket text-chili">{{ order.final_amount|floatformat:0 }}đ</span>
+        <span>Tổng cộng</span><span class="font-ticket text-chili">{{ order.final_amount|vnd }}</span>
       </div>
     </div>
   </aside>

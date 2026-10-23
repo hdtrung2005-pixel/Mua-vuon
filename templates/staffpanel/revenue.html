@@ -9,7 +9,7 @@
 {% block panel_content %}
 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
   <div class="ticket-card rounded-sm p-4">
-    <p class="font-ticket text-2xl text-chili">{{ total_revenue|floatformat:0 }}đ</p>
+    <p class="font-ticket text-2xl text-chili">{{ total_revenue|vnd }}</p>
     <p class="font-stamp text-xs uppercase text-soil/50 mt-1">Tổng doanh thu (đơn đã giao)</p>
   </div>
   <div class="ticket-card rounded-sm p-4">
@@ -35,7 +35,7 @@
     {% for product in top_products %}
       <div class="ticket-card rounded-sm p-3 flex items-center justify-between text-sm">
         <span class="font-body">{{ forloop.counter }}. {{ product.name }}</span>
-        <span class="font-ticket text-chili">{{ product.effective_price|floatformat:0 }}đ</span>
+        <span class="font-ticket text-chili">{{ product.effective_price|vnd }}</span>
       </div>
     {% empty %}
       <p class="font-body text-sm text-soil/40">Chưa có dữ liệu bán hàng.</p>

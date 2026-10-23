@@ -17,7 +17,7 @@
         <div class="font-body text-sm">
           <p class="font-ticket text-soil/70">{{ refund.order.order_code }} — {{ refund.order.customer.email }}</p>
           <p class="mt-1"><strong>Lý do:</strong> {{ refund.reason }}</p>
-          <p class="font-ticket text-chili mt-1">{{ refund.amount|floatformat:0 }}đ</p>
+          <p class="font-ticket text-chili mt-1">{{ refund.amount|vnd }}</p>
           {% if refund.staff_note %}<p class="text-soil/50 text-xs mt-1">Ghi chú xử lý: {{ refund.staff_note }}</p>{% endif %}
         </div>
         <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full shrink-0

@@ -23,7 +23,7 @@
         <p class="font-ticket text-xs text-soil/50">{{ product.sku }} · {{ product.category.name }}</p>
       </div>
       <div class="text-right flex items-center gap-4">
-        <span class="font-ticket text-sm text-chili">{{ product.effective_price|floatformat:0 }}đ</span>
+        <span class="font-ticket text-sm text-chili">{{ product.effective_price|vnd }}</span>
         <span class="font-stamp text-[0.65rem] uppercase px-2 py-0.5 rounded-full
           {% if product.status == 'ACTIVE' %}bg-leaf/10 text-leaf
           {% elif product.status == 'OUT_OF_STOCK' %}bg-chili/10 text-chili

@@ -22,10 +22,10 @@
 
   <div class="mt-auto flex items-baseline justify-between">
     <span class="font-ticket text-base text-chili">
-      {{ product.effective_price|floatformat:0 }}đ<span class="text-xs text-soil/50">/{{ product.unit }}</span>
+      {{ product.effective_price|vnd }}<span class="text-xs text-soil/50">/{{ product.unit }}</span>
     </span>
     {% if product.discount_price %}
-      <span class="font-ticket text-xs text-soil/40 line-through">{{ product.price|floatformat:0 }}đ</span>
+      <span class="font-ticket text-xs text-soil/40 line-through">{{ product.price|vnd }}</span>
     {% endif %}
   </div>
 </a>

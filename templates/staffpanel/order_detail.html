@@ -61,9 +61,9 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="update_shipping">
             <select name="status" class="w-full border border-soil/20 rounded-sm px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-turmeric">
-              {% for s in next_shipping_statuses %}
-                <option value="{{ s }}">{{ s }}</option>
-              {% endfor %}
+                {% for value, label in next_shipping_statuses %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
             </select>
             <button type="submit" class="w-full bg-soil text-paper font-stamp uppercase text-xs py-2 rounded-sm hover:bg-turmeric hover:text-soil transition-colors">
               Cập nhật vận chuyển

@@ -98,8 +98,12 @@ def order_detail(request, order_code):
 
     next_shipping_statuses = []
     if hasattr(order, "shipping"):
+        from apps.shipping.models import ShippingStatus
         from apps.shipping.services import ALLOWED_TRANSITIONS
-        next_shipping_statuses = ALLOWED_TRANSITIONS.get(order.shipping.status, set())
+        allowed = {str(s) for s in ALLOWED_TRANSITIONS.get(order.shipping.status, set())}
+        next_shipping_statuses = [
+            (value, label) for value, label in ShippingStatus.choices if value in allowed
+        ]
 
     return render(request, "staffpanel/order_detail.html", {
         "order": order,
